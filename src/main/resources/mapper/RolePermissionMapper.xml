@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.coder.lesson.mapper.RolePermissionMapper">
+    <resultMap id="BaseResultMap" type="com.coder.lesson.entity.RolePermission">
+        <id column="id" jdbcType="VARCHAR" property="id"/>
+        <result column="role_id" jdbcType="VARCHAR" property="roleId"/>
+        <result column="permission_id" jdbcType="VARCHAR" property="permissionId"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    id, role_id, permission_id, create_time
+  </sql>
+    <select id="selectPermissionIdsByRoleId" resultType="string">
+        select permission_id from sys_role_permission where role_id = #{roleId}
+    </select>
+    <select id="selectPermsByRoleIds" resultType="string">
+        select perms from
+        sys_role sr
+        inner join sys_role_permission srp
+        on sr.id = srp.role_id
+        inner join sys_permission sp
+        on srp.permission_id = sp.id
+        where sr.id in
+        <foreach collection="roleIds" open="(" separator="," close=")" item="id">
+            #{id}
+        </foreach>
+        and perms &lt;&gt; ''
+    </select>
+    <select id="selectRolesByPermissionId" resultType="string">
+    select
+    role_id
+    from sys_role_permission
+    where permission_id = #{permissionId}
+  </select>
+    <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from sys_role_permission
+        where id = #{id,jdbcType=VARCHAR}
+    </select>
+    <delete id="deleteByPermissionId">
+    delete from sys_role_permission
+    where permission_id = #{permissionId}
+  </delete>
+    <delete id="deleteByRoleId">
+     delete from sys_role_permission
+    where role_id = #{roleId}
+    </delete>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from sys_role_permission
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
+    <insert id="insert" parameterType="com.coder.lesson.entity.RolePermission">
+    insert into sys_role_permission (id, role_id, permission_id, 
+      create_time)
+    values (#{id,jdbcType=VARCHAR}, #{roleId,jdbcType=VARCHAR}, #{permissionId,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=TIMESTAMP})
+  </insert>
+    <insert id="insertSelective" parameterType="com.coder.lesson.entity.RolePermission">
+        insert into sys_role_permission
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="roleId != null">
+                role_id,
+            </if>
+            <if test="permissionId != null">
+                permission_id,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=VARCHAR},
+            </if>
+            <if test="roleId != null">
+                #{roleId,jdbcType=VARCHAR},
+            </if>
+            <if test="permissionId != null">
+                #{permissionId,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+        </trim>
+    </insert>
+    <insert id="batchInsertByPerms" parameterType="com.coder.lesson.entity.RolePermission">
+        insert into sys_role_permission
+        (id,role_id,permission_id,create_time)
+        values
+        <foreach collection="rps" item="item" separator=",">
+            (#{item.id},#{item.roleId},#{item.permissionId},#{item.createTime})
+        </foreach>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.coder.lesson.entity.RolePermission">
+        update sys_role_permission
+        <set>
+            <if test="roleId != null">
+                role_id = #{roleId,jdbcType=VARCHAR},
+            </if>
+            <if test="permissionId != null">
+                permission_id = #{permissionId,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        where id = #{id,jdbcType=VARCHAR}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.coder.lesson.entity.RolePermission">
+    update sys_role_permission
+    set role_id = #{roleId,jdbcType=VARCHAR},
+      permission_id = #{permissionId,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+</mapper>
